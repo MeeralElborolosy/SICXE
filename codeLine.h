@@ -6,10 +6,10 @@
 #include <regex>
 #include <iostream>
 
-#define N_BIT 18
-#define I_BIT 17
-#define X_BIT 16
-#define P_BIT 14
+#define N_BIT 17
+#define I_BIT 16
+#define X_BIT 15
+#define P_BIT 13
 
 using namespace std;
 class codeLine

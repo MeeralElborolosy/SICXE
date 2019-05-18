@@ -122,3 +122,44 @@
 1556742836 source:d:\study\term 6\systems\finalphase1\sicxe\main.cpp
 	"assembler.h"
 
+1558222400 source:d:\college\6th term\systems\phase 2\sicxe\assembler.cpp
+	"fileParser.h"
+
+1558211702 d:\college\6th term\systems\phase 2\sicxe\fileparser.h
+	"assembler.h"
+
+1558211702 d:\college\6th term\systems\phase 2\sicxe\assembler.h
+	<fstream>
+	<string>
+	<iostream>
+	<stdio.h>
+	<vector>
+	<cstring>
+	<algorithm>
+	<set>
+	<map>
+	<queue>
+	<stack>
+	<math.h>
+	<regex>
+	"codeLine.h"
+
+1558213654 d:\college\6th term\systems\phase 2\sicxe\codeline.h
+	<vector>
+	<string>
+	<algorithm>
+	<set>
+	<map>
+	<regex>
+	<iostream>
+
+1558211702 source:d:\college\6th term\systems\phase 2\sicxe\fileparser.cpp
+	"fileParser.h"
+
+1558211702 source:d:\college\6th term\systems\phase 2\sicxe\main.cpp
+	"assembler.h"
+
+1558222588 source:d:\college\6th term\systems\phase 2\sicxe\codeline.cpp
+	"codeLine.h"
+	<math.h>
+

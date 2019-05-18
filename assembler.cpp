@@ -25,7 +25,9 @@ void assembler::loadOperandPatterns()
 {
     regex rr("(a|b|l|x|s|t),(a|b|l|x|s|t)");
     regex r("(a|b|l|x|s|t)");
-    regex m("[*]|((@|#)?(([a-z]([a-z0-9_]*))|([0-9]+)))|(([a-z]([a-z0-9_]*))((,x)?))"); //label:(@|#)?([a-z](.*)) //hexa:([0-9a-f]+h)
+    //regex m("[*]|((@|#)?(([a-z]([a-z0-9_]*))|([0-9]+)))|(([a-z]([a-z0-9_]*))((,x)?))"); //label:(@|#)?([a-z](.*)) //hexa:([0-9a-f]+h)
+   //regex m("[*]|((@|#)?(([a-z]([a-z0-9_]*))|([0-9]+))(((+|-)[0-9]+)?))|(([a-z]([a-z0-9_]*))(((+|-)[0-9]+)?)((,x)?))");
+   regex m("[*]|((@|#)?(([a-z]([a-z0-9_]*))|([0-9]+))((([+]|[-])[0-9]+)?))|(([a-z]([a-z0-9_]*))((([+]|[-])[0-9]+)?)((,x)?))");
     regex j("((@|#)?(([a-z](.*))|([0-9]+)|0([0-9a-f]+h))(,x)?)"); // j  *
     regex res_b_w("[0-9]{1,4}");
     regex start_org("[0-9a-f]{1,4}");
@@ -130,7 +132,7 @@ void assembler::loadOPTAB()
     OPTAB["+stt"] = make_pair(4,0x84000000|(0x03100000));
     OPTAB["+ldch"] = make_pair(4,0x5000000|(0x03100000));
     OPTAB["+stch"] = make_pair(4,0x5400000|(0x03100000));
-    OPTAB["add"] = make_pair(3,0x180000);
+    OPTAB["add"] = make_pair(3,0x180000);//0001 1000 0000 0000
     OPTAB["sub"] = make_pair(3,0x1c0000);
     OPTAB["+add"] = make_pair(4,0x18000000|(0x03100000));
     OPTAB["+sub"] = make_pair(4,0x1c000000|(0x03100000));
@@ -200,13 +202,7 @@ void assembler::run()
             break;
         }
     }
-    // check unknownLabels
-    for (auto &it: unknownLabels)
-    {
-        for(int lineNo : it.second){
-            codeLines[lineNo-1].errorIds.push_back(9);
-        }
-    }
+
     for(int i=0;i<codeLines.size();i++)
     {
         codeLines[i].evaluateDisp(labels,OPTAB,registerNo);
