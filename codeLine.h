@@ -22,6 +22,7 @@ public:
     int newPc;
     int lineNo;
     int address;
+    int format;
     bool end = 0;
     bool start=0;
     string line;
@@ -36,6 +37,7 @@ public:
     string dec2hex(int dec);
     string getHexAddress();
     string getStartLabel();
+    string getHexObjCode();
 private:
     void validateFreeFormat(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations);
     void validateFixedFormat(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations);
@@ -46,6 +48,7 @@ private:
     unsigned int setBit(unsigned int n,int bit);
     unsigned int clearBit(unsigned int n,int bit);
     bool getBit(unsigned int n,int bit);
+public:
     string opcodeFinal;
     string operandFinal;
 };

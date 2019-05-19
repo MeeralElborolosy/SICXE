@@ -98,6 +98,7 @@ secondField:
         objcode=OPTAB[opcode].second;
     }
     opcodeFinal=opcode;
+    format = OPTAB[opcodeFinal].first;
     ss >> operand;
     if(!regex_match(operand, operandPatterns[opcode]))
     {
@@ -142,6 +143,7 @@ secondField:
     operandFinal=operand;
 // opcode is directive
 // update addresses
+{
     if(opcode == "start")
     {
         address  =  newPc = hex2dec(operand);
@@ -200,6 +202,7 @@ secondField:
             errorIds.push_back(5);
         }
     }
+}
 done:
     return;
 }
@@ -372,6 +375,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
             opcodeFinal=op_code;
         }
     }
+    format = OPTAB[opcodeFinal].first;
     //check format
     if(!regex_match(operand, operandPatterns[op_code]))
     {
@@ -605,6 +609,20 @@ string codeLine::getHexAddress()
 string codeLine::getStartLabel()
 {
     return startLabel;
+}
+string codeLine::getHexObjCode()
+{
+    stringstream ss;
+    ss << hex << objcode;
+    string objcode_str = ss.str();
+    if(objcode_str.size()/2 < format && (objcode_str.size()%2 == 1)){
+        objcode_str.insert(objcode_str.begin(), '0');
+    }
+    while(objcode_str.size()/2 < format){
+        objcode_str.insert(objcode_str.begin(), '0');
+        objcode_str.insert(objcode_str.begin(), '0');
+    }
+    return objcode_str;
 }
 bool codeLine::indexed(string operand)
 {

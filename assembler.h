@@ -28,12 +28,13 @@ class assembler
     bool endStatement;
     string startLabel;
 public:
-    assembler(bool mode, char* readFilePath, char* writeFilePath);
+    assembler(bool mode, char* readFilePath, char* LISFILEPath, char* OBJFILEPath);
     void run();
 private:
     bool mode;
     char* readFilePath;
-    char* writeFilePath;
+    char* LISFILEPath;
+    char* OBJFILEPath;
     void loadOperandPatterns();
     void loadOPTAB();
     void loadIllegalOperations();

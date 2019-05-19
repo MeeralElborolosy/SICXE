@@ -33,40 +33,110 @@ vector<codeLine> fileParser::readFile(char * path)
     inFile.close();
     return codeLines;
 }
-void fileParser::writeFile(vector<codeLine> &codeLines,char * path,bool endStatement)
+void fileParser::writeFile(vector<codeLine> &codeLines, char * LISFILE, char * OBJFILE, bool endStatement)
 {
-    ofstream outFile;
-    outFile.open(path);
-    bool error=false;
+    ofstream lisfile;
+    lisfile.open(LISFILE);
+
+    bool error = false;
     if(mode==1)
     {
-        cout<<"Line no.\tAddress\tLabel\tMnemonic Operands Comments\n";
-        outFile<<"Line no.\tAddress\tLabel\tMnemonic Operands Comments\n";
+        cout << "Line no.\tAddress\tLabel\tMnemonic Operands Comments\n";
+        lisfile << "Line no.\tAddress\tLabel\tMnemonic Operands Comments\n";
     }
     for(codeLine line : codeLines)
     {
         for(int id: line.errorIds)
         {
-            cout<<errorMsg[id-1]<<endl;
-            outFile<<errorMsg[id-1]<<endl;
-            error=true;
+            cout << errorMsg[id-1] << endl;
+            lisfile << errorMsg[id-1] << endl;
+            error = true;
         }
-        cout<<line.lineNo<<"\t\t"<<line.getHexAddress()<<"\t"<<line.line<<"\t"<<std::hex<<line.objcode<<endl;
-        outFile<<line.lineNo<<"\t\t"<<line.getHexAddress()<<"\t"<<line.line<<"\t"<<std::hex<<line.objcode<<endl;
+        cout << line.lineNo << "\t\t" << line.getHexAddress() << "\t" << line.line <<"\t" << std::hex << line.objcode << endl;
+        lisfile << line.lineNo << "\t\t" <<line.getHexAddress() << "\t" << line.line <<"\t" << std::hex << line.objcode << endl;
     }
     if(!endStatement)
     {
-        cout<<errorMsg[12]<<endl;
-        outFile<<errorMsg[12]<<endl;
+        cout << errorMsg[12] << endl;
+        lisfile << errorMsg[12] << endl;
     }
     if(!error)
     {
-        cout<<"Successful Assembly"<<endl;
-        outFile<<"Successful Assembly"<<endl;
+        cout << "Successful Assembly" << endl;
+        lisfile << "Successful Assembly" << endl;
     }
     else
     {
-        cout<<"Unsuccessful Assembly"<<endl;
-        outFile<<"Unsuccessful Assembly"<<endl;
+        cout << "Unsuccessful Assembly" << endl;
+        lisfile << "Unsuccessful Assembly" << endl;
     }
 }
+void fileParser::writeObjectFile(vector<codeLine> &codeLines, char * OBJFILE){
+    ofstream objfile;
+    objfile.open(OBJFILE);
+
+    pair<string, string> currTxtRec = make_pair("",""); // address, text record
+    string startAddress;
+    for(codeLine line : codeLines)
+    {
+        // write record in OBJFILE
+        //cout << "OPCODE FINAL   "<<line.opcodeFinal <<endl;
+        if(!line.line.empty() && line.line[0] != '.'){ // comment
+            writeRecords(line, objfile, currTxtRec, startAddress);
+        }
+    }
+
+}
+/*string zeroPadding(int requiredSize, string str){
+    while(str.size() < requiredSize){
+        str.insert(str.begin(), '0');
+    }
+    return str;
+}*/
+void fileParser::writeRecords(codeLine &line, ofstream &objfile, pair<string, string> &currTxtRec, string &startAddress){
+    // write header
+    if(line.opcodeFinal == "start" ){
+        startAddress = line.getHexAddress();
+        while(startAddress.size() < 6){
+            startAddress.insert(startAddress.begin(), '0');
+        }
+        string label = line.getStartLabel();
+        while(label.size() < 6){
+            label.insert(label.begin(), ' ');
+        }
+        cout << endl << "H" << "^" << label << "^" << startAddress << "^" << "length el code kolo in bytes";
+        objfile << endl << "H" << "^" << label << "^" << startAddress << "^" << "length el code kolo in bytes";
+        return;
+    }
+
+    // write current record
+    if(((currTxtRec.second != "" && currTxtRec.first != "")&&(line.opcodeFinal == "resw" || line.opcodeFinal == "resb" || line.opcodeFinal == "end")) || (currTxtRec.second.size() + line.format >=30)){ // > 1E hex
+        int length = currTxtRec.second.size()/2; string zero = "";
+        if(length < 16){
+            zero = "0";
+        }
+        cout << endl << "T" << "^" << currTxtRec.first << "^" << zero <<  hex << currTxtRec.second.size()/2 << "^" << currTxtRec.second;
+        objfile << endl << "T" << "^" <<  currTxtRec.first << "^" << zero << hex << currTxtRec.second.size()/2 << "^" << currTxtRec.second;
+        currTxtRec = make_pair("", "");
+    }
+    // write end
+    if(line.opcodeFinal == "end") {
+        cout << endl << "E" << "^" << startAddress;
+        objfile << endl << "E" << "^" << startAddress;
+        return;
+    }
+    if(currTxtRec.second == "" && currTxtRec.first == ""  && (line.opcodeFinal != "end" && line.opcodeFinal != "resw" && line.opcodeFinal != "resb")){
+        string add = line.getHexAddress();
+        while(add.size() < 6){
+            add.insert(add.begin(), '0');
+        }
+        currTxtRec = make_pair(add, line.getHexObjCode());
+        return;
+    }
+    //append objcode to current text record
+    if(currTxtRec.second != "" && currTxtRec.first != "" ){
+        currTxtRec.second += line.getHexObjCode();
+    }
+
+}
+

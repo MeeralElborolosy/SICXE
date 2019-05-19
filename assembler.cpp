@@ -1,11 +1,12 @@
 #include "fileParser.h"
-assembler::assembler(bool mode, char* readFilePath, char* writeFilePath)
+assembler::assembler(bool mode, char* readFilePath, char* LISFILEPath, char* OBJFILEPath)
 {
     this->mode = mode;
     this->readFilePath = readFilePath;
-    this->writeFilePath = writeFilePath;
-    endStatement=false;
-    startLabel="";
+    this->LISFILEPath = LISFILEPath;
+    this->OBJFILEPath = OBJFILEPath;
+    endStatement = false;
+    startLabel = "";
     loadOperandPatterns();
     loadOPTAB();
     loadRegisterNo();
@@ -207,5 +208,6 @@ void assembler::run()
     {
         codeLines[i].evaluateDisp(labels,OPTAB,registerNo);
     }
-    fp.writeFile(codeLines, writeFilePath,endStatement);
+    fp.writeFile(codeLines, LISFILEPath, OBJFILEPath, endStatement);
+    fp.writeObjectFile(codeLines, OBJFILEPath);
 }

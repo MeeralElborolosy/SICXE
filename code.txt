@@ -1,19 +1,9 @@
 .2345678901234567890123456789
-first    START   1000
-         add     *+3
+Prbn01   START   1000
+         addr    s,x
+         add     #3
          add     @alpha
-         add     alpha-3,x
 alpha    resw    100
-         stl     retaddr
-         ldt     #11
-         ldx     #0
-movech   ldch    str1,x
-         stch    str2,x
-         tixr    t
-         jlt     movech
-         j       @retaddr
-str1     byte    c'testxstring'
-str2     resb    11
-retaddr  resw    1
-         end     first
+alxx     byte    c'hhh'
+         end     Prbn01
 
