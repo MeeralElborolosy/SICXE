@@ -1,9 +1,15 @@
-Line no.	Address	Label	Mnemonic Operands Comments
 1		0	.2345678901234567890123456789	0
-2		1000	prbn01   start   1000  	0
-3		1000	         addr    s,x	9041
-4		1002	         add     #3	1a0003
-5		1005	         add     @alpha	1c1008
-6		1008	alpha    resw    100	0
-7		1134	         end     prbn01	0
+2		1000	first    start   1000	30000
+3		1000	         stl     retaddr	17202a
+4		1003	         ldt     #11	75000b
+5		1006	         ldx     #0	50000
+6		1009	movech   ldch    str1,x	53a00b
+7		100c	         stch    str2,x	57a013
+8		100f	         tixr    t	b850
+9		1011	         jlt     movech	3b2ff5
+a		1014	         j       @retaddr	3e2016
+b		1017	str1     byte    c'testxstring'	30000
+c		1022	str2     resb    11	30000
+d		102d	retaddr  resw    1	30000
+e		1030	         end     first	30000
 Successful Assembly

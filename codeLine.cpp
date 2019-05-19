@@ -17,7 +17,7 @@ void codeLine::loadPc(int pc)
     this->pc = pc;
     this->address=pc;
 }
-void codeLine::validate(map<string,regex> &operandPatterns, map<string,int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
+void codeLine::validate(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
 {
     if(mode == 0)  // free format
     {
@@ -28,7 +28,7 @@ void codeLine::validate(map<string,regex> &operandPatterns, map<string,int> &lab
         validateFixedFormat(operandPatterns, labels, unknownLabels, OPTAB, illegalOperations);
     }
 }
-void codeLine::validateFreeFormat(map<string,regex> &operandPatterns, map<string,int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
+void codeLine::validateFreeFormat(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
 {
 
     regex labelPattern("(@|#)?([a-z]([a-z0-9_]*))"); // push mn 8eir @ #
@@ -115,33 +115,34 @@ secondField:
         {
             objcode=setBit(objcode,N_BIT);
         }
-        else
-        {
-            objcode=setBit(objcode,I_BIT);
-            objcode=setBit(objcode,N_BIT);
-        }
         if(numeric(operand))
         {
             objcode=clearBit(objcode,P_BIT);
         }
         operand.erase(operand.begin());
     }
-    if(regex_match(operand, labelPattern))
+    else if(OPTAB[opcodeFinal].first!=2)
+    {
+        objcode=setBit(objcode,I_BIT);
+        objcode=setBit(objcode,N_BIT);
+    }
+    if(indexed(operand))
+    {
+        if(OPTAB[opcodeFinal].first==3)
+        {
+            objcode=setBit(objcode,X_BIT);
+        }
+        else if(OPTAB[opcodeFinal].first==4)
+        {
+            objcode=setBit(objcode,X_BIT+4);
+        }
+        operand=operand.substr(0,operand.length()-2);
+    }
+    if(regex_match(operand, labelPattern)&&OPTAB[opcode].first!=2)
     {
         if(labels.find(operand) == labels.end())
         {
             unknownLabels[operand].push_back(lineNo);
-        }
-    }
-    if(indexed(operand))
-    {
-        if(OPTAB[operand].first==3)
-        {
-            objcode=setBit(objcode,X_BIT);
-        }
-        else if(OPTAB[operand].first==4)
-        {
-            objcode=setBit(objcode,X_BIT+4);
         }
     }
     operandFinal=operand;
@@ -208,7 +209,7 @@ secondField:
 done:
     return;
 }
-void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<string,int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
+void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
 {
     regex labelPattern("(@|#)?([a-z]([a-z0-9_]*))"); // push mn 8eir @ #
     string op_code,operand,label,comment;
@@ -374,7 +375,6 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
         {
             newPc = pc + OPTAB[op_code].first;
             objcode=OPTAB[op_code].second;
-            cout<<op_code<<" "<<std::hex<<objcode<<std::hex<<endl;
             opcodeFinal=op_code;
         }
     }
@@ -395,33 +395,34 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
             {
                 objcode=setBit(objcode,N_BIT);
             }
-            else
-            {
-                objcode=setBit(objcode,I_BIT);
-                objcode=setBit(objcode,N_BIT);
-            }
             if(numeric(operand))
             {
                 objcode=clearBit(objcode,P_BIT);
             }
             operand.erase(operand.begin());
         }
-        if(regex_match(operand, labelPattern))
+        else if(OPTAB[opcodeFinal].first!=2)
+        {
+            objcode=setBit(objcode,I_BIT);
+            objcode=setBit(objcode,N_BIT);
+        }
+        if(indexed(operand))
+        {
+            if(OPTAB[opcodeFinal].first==3)
+            {
+                objcode=setBit(objcode,X_BIT);
+            }
+            else if(OPTAB[opcodeFinal].first==4)
+            {
+                objcode=setBit(objcode,X_BIT+4);
+            }
+            operand=operand.substr(0,operand.length()-2);
+        }
+        if(regex_match(operand, labelPattern)&&OPTAB[op_code].first!=2)
         {
             if(labels.find(operand) == labels.end())
             {
                 unknownLabels[operand].push_back(lineNo);
-            }
-        }
-        if(indexed(operand))
-        {
-            if(OPTAB[operand].first==3)
-            {
-                objcode=setBit(objcode,X_BIT);
-            }
-            else if(OPTAB[operand].first==4)
-            {
-                objcode=setBit(objcode,X_BIT+4);
             }
         }
         operandFinal=operand;
@@ -514,48 +515,43 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
 done:
     return;
 }
-void codeLine::evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigned int>> &OPTAB,map<char,unsigned int> regNo)
+void codeLine::evaluateDisp(map<string,unsigned int> &labels,map<string, pair<int,unsigned int>> &OPTAB,map<char,unsigned int> regNo)
 {
     regex labelPattern("(@|#)?([a-z]([a-z0-9_]*))");
     if(opcodeFinal==""||operandFinal=="")
     {
-        cout<<"empty"<<endl;
         return;
     }
     if(OPTAB[opcodeFinal].first==2)
     {
-        cout<<"opcode before"<<std::hex<<objcode<<endl;
         unsigned int disp=(regNo[operandFinal[0]]<<4)|regNo[operandFinal[2]];
         objcode|=disp;
-        cout<<disp<<endl;
         return;
     }
     unsigned int disp;
     if(regex_match(operandFinal,labelPattern))
     {
         disp=labels[operandFinal];
-        cout<<disp<<endl;
     }
     else
     {
         stringstream ss(operandFinal);
         ss>>disp;
-        cout<<disp<<endl;
     }
     if(OPTAB[opcodeFinal].first==3)
     {
         if(getBit(objcode,P_BIT))
         {
-            objcode|=pc-disp;
+            objcode|=((disp-((unsigned int)newPc))&4095);
         }
         else
         {
-            objcode|=disp;
+            objcode|=(disp&4095);
         }
     }
     else if(OPTAB[opcodeFinal].first==4)
     {
-        objcode|=disp;
+        objcode|=(disp&1048575);
     }
     else
     {
@@ -630,5 +626,5 @@ unsigned int codeLine::clearBit(unsigned int n,int bit)
 }
 bool codeLine::getBit(unsigned int n,int bit)
 {
-    return n&(1<<bit)!=0;
+    return (n>>bit)&1!=0;
 }

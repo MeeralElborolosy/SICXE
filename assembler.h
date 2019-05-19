@@ -21,7 +21,7 @@ class assembler
     map<string, pair<int,unsigned int>> OPTAB; // length of instructions
     map<char,unsigned int> registerNo;
     set<string> illegalOperations; //can't be format 4
-    map<string,int> labels; //khaliha map
+    map<string,unsigned int> labels; //khaliha map
     map<string,vector<int>> unknownLabels;
     vector<string> errorMsg;
     vector<codeLine> codeLines;
