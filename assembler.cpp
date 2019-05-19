@@ -1,11 +1,12 @@
 #include "fileParser.h"
-assembler::assembler(bool mode, char* readFilePath, char* writeFilePath)
+assembler::assembler(bool mode, char* readFilePath, char* LISFILEPath, char* OBJFILEPath)
 {
     this->mode = mode;
     this->readFilePath = readFilePath;
-    this->writeFilePath = writeFilePath;
-    endStatement=false;
-    startLabel="";
+    this->LISFILEPath = LISFILEPath;
+    this->OBJFILEPath = OBJFILEPath;
+    endStatement = false;
+    startLabel = "";
     loadOperandPatterns();
     loadOPTAB();
     loadRegisterNo();
@@ -136,7 +137,7 @@ void assembler::loadOPTAB()
     OPTAB["sub"] = make_pair(3,0x1c0000|(1<<13));
     OPTAB["+add"] = make_pair(4,0x18000000|(0x03100000));
     OPTAB["+sub"] = make_pair(4,0x1c000000|(0x03100000));
-    OPTAB["comp"] = make_pair(3,0x280000);
+    OPTAB["comp"] = make_pair(3,0x280000|(1<<13));
     OPTAB["+comp"] = make_pair(4,0x28000000|(0x03100000));
     OPTAB["j"] = make_pair(3,0x3c0000|(1<<13));
     OPTAB["jeq"] = make_pair(3,0x300000|(1<<13));
@@ -207,5 +208,6 @@ void assembler::run()
     {
         codeLines[i].evaluateDisp(labels,OPTAB,registerNo);
     }
-    fp.writeFile(codeLines, writeFilePath,endStatement);
+    fp.writeFile(codeLines, LISFILEPath, OBJFILEPath, endStatement);
+    fp.writeObjectFile(codeLines, OBJFILEPath);
 }

@@ -22,6 +22,7 @@ public:
     int newPc;
     int lineNo;
     int address;
+    int format;
     bool end = 0;
     bool start=0;
     string line;
@@ -29,16 +30,17 @@ public:
     codeLine(string &line, int lineNo);
     void setMode(bool mode);
     void loadPc(int pc);
-    void validate(map<string,regex> &operandPatterns, map<string,int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations); // validates line for errors and saves its address
-    void evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigned int>> &OPTAB,map<char,unsigned int> regNo);
+    void validate(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations); // validates line for errors and saves its address
+    void evaluateDisp(map<string,unsigned int> &labels,map<string, pair<int,unsigned int>> &OPTAB,map<char,unsigned int> regNo);
     int getNewPc(); // return the new pc
     int hex2dec(string hex);
     string dec2hex(int dec);
     string getHexAddress();
     string getStartLabel();
+    string getHexObjCode();
 private:
-    void validateFreeFormat(map<string,regex> &operandPatterns, map<string,int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations);
-    void validateFixedFormat(map<string,regex> &operandPatterns, map<string,int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations);
+    void validateFreeFormat(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations);
+    void validateFixedFormat(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations);
     bool indexed(string operand);
     bool immediate(string operand);
     bool indirect(string operand);
@@ -48,6 +50,7 @@ private:
     bool getBit(unsigned int n,int bit);
     int shift(int format,int bit);
     vector<unsigned int> calcByte(string operand);
+public:
     string opcodeFinal;
     string operandFinal;
 };

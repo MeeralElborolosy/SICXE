@@ -1,7 +1,9 @@
 .2345678901234567890123456789
 Prbn01   START   1000
-         add     *+3
+         addr    s,x
+         add     #3
          add     @alpha
-         add     alpha-3,x
 alpha    resw    100
+alxx     byte    c'hhh'
          end     Prbn01
+

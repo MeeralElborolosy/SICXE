@@ -21,19 +21,20 @@ class assembler
     map<string, pair<int,unsigned int>> OPTAB; // length of instructions
     map<char,unsigned int> registerNo;
     set<string> illegalOperations; //can't be format 4
-    map<string,int> labels; //khaliha map
+    map<string,unsigned int> labels; //khaliha map
     map<string,vector<int>> unknownLabels;
     vector<string> errorMsg;
     vector<codeLine> codeLines;
     bool endStatement;
     string startLabel;
 public:
-    assembler(bool mode, char* readFilePath, char* writeFilePath);
+    assembler(bool mode, char* readFilePath, char* LISFILEPath, char* OBJFILEPath);
     void run();
 private:
     bool mode;
     char* readFilePath;
-    char* writeFilePath;
+    char* LISFILEPath;
+    char* OBJFILEPath;
     void loadOperandPatterns();
     void loadOPTAB();
     void loadIllegalOperations();

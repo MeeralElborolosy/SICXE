@@ -17,7 +17,7 @@ void codeLine::loadPc(int pc)
     this->pc = pc;
     this->address=pc;
 }
-void codeLine::validate(map<string,regex> &operandPatterns, map<string,int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
+void codeLine::validate(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
 {
     if(mode == 0)  // free format
     {
@@ -28,7 +28,7 @@ void codeLine::validate(map<string,regex> &operandPatterns, map<string,int> &lab
         validateFixedFormat(operandPatterns, labels, unknownLabels, OPTAB, illegalOperations);
     }
 }
-void codeLine::validateFreeFormat(map<string,regex> &operandPatterns, map<string,int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
+void codeLine::validateFreeFormat(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
 {
 
     regex labelPattern("(@|#)?([a-z]([a-z0-9_]*))"); // push mn 8eir @ #
@@ -98,6 +98,7 @@ secondField:
         objcode[0]=OPTAB[opcode].second;
     }
     opcodeFinal=opcode;
+    format = OPTAB[opcodeFinal].first;
     ss >> operand;
     if(!regex_match(operand, operandPatterns[opcode]))
     {
@@ -134,6 +135,7 @@ secondField:
     operandFinal=operand;
 // opcode is directive
 // update addresses
+{
     if(opcode == "start")
     {
         address  =  newPc = hex2dec(operand);
@@ -192,10 +194,11 @@ secondField:
             errorIds.push_back(5);
         }
     }
+}
 done:
     return;
 }
-void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<string,int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
+void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<string,unsigned int> &labels, map<string,vector<int>> &unknownLabels, map<string, pair<int,unsigned int>> &OPTAB, set<string> &illegalOperations)
 {
     regex labelPattern("(@|#)?([a-z]([a-z0-9_]*))"); // push mn 8eir @ #
     string op_code,operand,label,comment;
@@ -365,6 +368,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
             opcodeFinal=op_code;
         }
     }
+    format = OPTAB[opcodeFinal].first;
     //check format
     if(!regex_match(operand, operandPatterns[op_code]))
     {
@@ -494,12 +498,11 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
 done:
     return;
 }
-void codeLine::evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigned int>> &OPTAB,map<char,unsigned int> regNo)
+void codeLine::evaluateDisp(map<string,unsigned int> &labels,map<string, pair<int,unsigned int>> &OPTAB,map<char,unsigned int> regNo)
 {
     cout << "operand final " << operandFinal<<endl;
     if(opcodeFinal==""||operandFinal=="")
     {
-        cout<<"empty"<<endl;
         return;
     }
     if(OPTAB[opcodeFinal].first==2)
@@ -515,7 +518,6 @@ void codeLine::evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigne
     regex labelPattern("([*]|([a-z]([a-z0-9_]*)))((([+]|[-])[0-9]+)?)");
     if(regex_match(operandFinal,labelPattern))
     {
-
         int sign_pos = operandFinal.find("-");
         sign_pos = sign_pos == string::npos ? operandFinal.find("+") : sign_pos;
 
@@ -539,7 +541,6 @@ void codeLine::evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigne
     {
         stringstream ss(operandFinal);
         ss>>disp;
-        cout<<disp<<endl;
     }
     if(OPTAB[opcodeFinal].first==3)
     {
@@ -599,6 +600,20 @@ string codeLine::getHexAddress()
 string codeLine::getStartLabel()
 {
     return startLabel;
+}
+string codeLine::getHexObjCode()
+{
+    stringstream ss;
+    ss << hex << objcode;
+    string objcode_str = ss.str();
+    if(objcode_str.size()/2 < format && (objcode_str.size()%2 == 1)){
+        objcode_str.insert(objcode_str.begin(), '0');
+    }
+    while(objcode_str.size()/2 < format){
+        objcode_str.insert(objcode_str.begin(), '0');
+        objcode_str.insert(objcode_str.begin(), '0');
+    }
+    return objcode_str;
 }
 bool codeLine::indexed(string operand)
 {
