@@ -51,8 +51,13 @@ void fileParser::writeFile(vector<codeLine> &codeLines,char * path,bool endState
             outFile<<errorMsg[id-1]<<endl;
             error=true;
         }
-        cout<<line.lineNo<<"\t\t"<<line.getHexAddress()<<"\t"<<line.line<<"\t"<<std::hex<<line.objcode<<endl;
-        outFile<<line.lineNo<<"\t\t"<<line.getHexAddress()<<"\t"<<line.line<<"\t"<<std::hex<<line.objcode<<endl;
+        cout<<line.lineNo<<"\t\t"<<line.getHexAddress()<<"\t"<<line.line<<"\t"<<std::hex<<line.objcode[0]<<"\t";
+        outFile<<line.lineNo<<"\t\t"<<line.getHexAddress()<<"\t"<<line.line<<"\t"<<std::hex<<line.objcode[0]<<"\t";
+        for(int i=1;i<line.objcode.size();i++)
+        {
+            cout<<std::hex<<line.objcode[i]<<"\t";
+        }
+        cout<<endl;
     }
     if(!endStatement)
     {

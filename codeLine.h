@@ -18,7 +18,7 @@ class codeLine
     bool mode;
     string startLabel;
 public:
-    unsigned int objcode;
+    vector<unsigned int> objcode;
     int newPc;
     int lineNo;
     int address;
@@ -46,6 +46,8 @@ private:
     unsigned int setBit(unsigned int n,int bit);
     unsigned int clearBit(unsigned int n,int bit);
     bool getBit(unsigned int n,int bit);
+    int shift(int format,int bit);
+    vector<unsigned int> calcByte(string operand);
     string opcodeFinal;
     string operandFinal;
 };

@@ -5,7 +5,7 @@ codeLine::codeLine(string &line, int lineNo)
     this->line = line;
     transform(this->line.begin(), this->line.end(), this->line.begin(), ::tolower);
     this->lineNo = lineNo;
-    this->objcode=0;
+    this->objcode.push_back(0);
 }
 void codeLine::setMode(bool mode)
 {
@@ -95,7 +95,7 @@ secondField:
     if(OPTAB.find(opcode) != OPTAB.end())
     {
         newPc = pc + OPTAB[opcode].first;
-        objcode=OPTAB[opcode].second;
+        objcode[0]=OPTAB[opcode].second;
     }
     opcodeFinal=opcode;
     ss >> operand;
@@ -107,37 +107,28 @@ secondField:
     cout<<"HELLO\n"<<operand[0]<<endl;;
     if(!operand.empty() && (operand[0]=='@' || operand[0]=='#'))
     {
-
         if(immediate(operand))
         {
-            objcode=setBit(objcode,I_BIT);
+            objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,I_BIT));
         }
         else if(indirect(operand))
         {
-            objcode=setBit(objcode,N_BIT);
-        }
-        else
-        {
-            objcode=setBit(objcode,I_BIT);
-            objcode=setBit(objcode,N_BIT);
+            objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,N_BIT));
         }
         if(numeric(operand))
         {
-            objcode=clearBit(objcode,P_BIT);
+            objcode[0]=clearBit(objcode[0],shift(OPTAB[opcodeFinal].first,P_BIT));
         }
         operand.erase(operand.begin());
     }
-
+    else if(OPTAB[opcodeFinal].first!=2)
+    {
+        objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,I_BIT));
+        objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,N_BIT));
+    }
     if(indexed(operand))
     {
-        if(OPTAB[operand].first==3)
-        {
-            objcode=setBit(objcode,X_BIT);
-        }
-        else if(OPTAB[operand].first==4)
-        {
-            objcode=setBit(objcode,X_BIT+4);
-        }
+        objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,X_BIT));
         operand = operand.substr(0, operand.size()-2);
     }
     operandFinal=operand;
@@ -369,8 +360,8 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
         if(OPTAB.find(op_code) != OPTAB.end())
         {
             newPc = pc + OPTAB[op_code].first;
-            objcode=OPTAB[op_code].second;
-            cout<<op_code<<" "<<std::hex<<objcode<<std::hex<<endl;
+            objcode[0]=OPTAB[op_code].second;
+            cout<<op_code<<" "<<std::hex<<objcode[0]<<std::hex<<endl;
             opcodeFinal=op_code;
         }
     }
@@ -386,34 +377,26 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
         {
             if(immediate(operand))
             {
-                objcode=setBit(objcode,I_BIT);
+                objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,I_BIT));
             }
             else if(indirect(operand))
             {
-                objcode=setBit(objcode,N_BIT);
-            }
-            else
-            {
-                objcode=setBit(objcode,I_BIT);
-                objcode=setBit(objcode,N_BIT);
+                objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,N_BIT));
             }
             if(numeric(operand))
             {
-                objcode=clearBit(objcode,P_BIT);
+                objcode[0]=clearBit(objcode[0],shift(OPTAB[opcodeFinal].first,P_BIT));
             }
             operand.erase(operand.begin());
         }
-
+        else if(OPTAB[opcodeFinal].first!=2)
+        {
+            objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,I_BIT));
+            objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,N_BIT));
+        }
         if(indexed(operand))
         {
-            if(OPTAB[operand].first==3)
-            {
-                objcode=setBit(objcode,X_BIT);
-            }
-            else if(OPTAB[operand].first==4)
-            {
-                objcode=setBit(objcode,X_BIT+4);
-            }
+            objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,X_BIT));
             operand = operand.substr(0, operand.size()-2);
         }
         operandFinal=operand;
@@ -464,10 +447,15 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
             goto done;
         }
         newPc = pc + operand.length()-3;
+        objcode=calcByte(operandFinal);
     }
     else if(op_code == "word")
     {
         newPc = pc + 3 ;
+        stringstream ss(operandFinal);
+        int x;
+        ss>>x;
+        objcode[0]=(x&0xFFFFFF);
     }
     else if(op_code == "equ ")
     {
@@ -516,9 +504,9 @@ void codeLine::evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigne
     }
     if(OPTAB[opcodeFinal].first==2)
     {
-        cout<<"opcode before"<<std::hex<<objcode<<endl;
+        cout<<"opcode before"<<std::hex<<objcode[0]<<endl;
         unsigned int disp=(regNo[operandFinal[0]]<<4)|regNo[operandFinal[2]];
-        objcode|=disp;
+        objcode[0]|=disp;
         cout<<disp<<endl;
         return;
     }
@@ -545,7 +533,7 @@ void codeLine::evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigne
 
         disp = (before == "*" ? this->address : labels[before]) + num;
         cout<<"HEEERE " << this->address << ' ' << num << ' ' << disp<<endl;
-        cout<<"disp  " << std::hex<<disp<<endl;
+        cout<<operandFinal<<" disp  " << std::hex<<disp<<endl;
     }
     else
     {
@@ -555,20 +543,18 @@ void codeLine::evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigne
     }
     if(OPTAB[opcodeFinal].first==3)
     {
-        if(getBit(objcode,P_BIT))
+        if(getBit(objcode[0],P_BIT))
         {
-            objcode|=pc-disp;
+            objcode[0]|=((disp-((unsigned int)newPc))&4095);
         }
         else
         {
-            cout<<"before  " << std::hex<<objcode<<endl;
-            objcode|=disp;
-            cout<<"after  " << std::hex<<objcode<<endl;
+            objcode[0]|=(disp&4095);
         }
     }
     else if(OPTAB[opcodeFinal].first==4)
     {
-        objcode|=disp;
+        objcode[0]|=(disp&1048575);
     }
     else
     {
@@ -644,5 +630,51 @@ unsigned int codeLine::clearBit(unsigned int n,int bit)
 }
 bool codeLine::getBit(unsigned int n,int bit)
 {
-    return n&(1<<bit)!=0;
+    return ((n>>bit)&1)!=0;
+}
+int codeLine::shift(int format,int bit)
+{
+    return format==4? bit+4:bit;
+}
+vector<unsigned int> codeLine::calcByte(string operand)
+{
+    vector<unsigned int> objcodes;
+    regex x_pattern("(x'([a-f0-9]{0,14})')");
+    if(regex_match(operand,x_pattern))
+    {
+        operand=operand.substr(2,operand.length()-3);
+        do
+        {
+            objcodes.push_back(hex2dec(operand.substr(0,6)));
+            if(operand.length()<=6)
+            {
+                break;
+            }
+            operand=operand.substr(6);
+        }while(operand.length()!=0);
+        return objcodes;
+    }
+    operand=operand.substr(2,operand.length()-3);
+    string res="";
+    do
+    {
+        if(res.length()==6)
+        {
+            objcodes.push_back(hex2dec(res));
+            res="";
+        }
+        int ascii=operand[0];
+        string temp=dec2hex(ascii);
+        if(temp.length()==1)
+        {
+            res=res+"0";
+        }
+        res=res+temp;
+        operand=operand.substr(1);
+    }while(operand.length()!=0);
+    if(res!="")
+    {
+        objcodes.push_back(hex2dec(res));
+    }
+    return objcodes;
 }
