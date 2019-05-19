@@ -34,6 +34,7 @@ public:
     void evaluateDisp(map<string,unsigned int> &labels,map<string, pair<int,unsigned int>> &OPTAB,map<char,unsigned int> regNo);
     int getNewPc(); // return the new pc
     int hex2dec(string hex);
+    int instructionLength(map<string,pair<int,unsigned int>> OPTAB);
     string dec2hex(int dec);
     string getHexAddress();
     string getStartLabel();
@@ -50,6 +51,7 @@ private:
     bool getBit(unsigned int n,int bit);
     int shift(int format,int bit);
     vector<unsigned int> calcByte(string operand);
+    vector<unsigned int> calcWord(string operand);
 public:
     string opcodeFinal;
     string operandFinal;

@@ -52,8 +52,8 @@ void fileParser::writeFile(vector<codeLine> &codeLines, char * LISFILE, bool end
             lisfile << errorMsg[id-1] << endl;
             error = true;
         }
-        cout << line.lineNo << "\t\t" << line.getHexAddress() << "\t" << line.line <<"\t" << std::hex << line.objcode << endl;
-        lisfile << line.lineNo << "\t\t" <<line.getHexAddress() << "\t" << line.line <<"\t" << std::hex << line.objcode << endl;
+        cout << line.lineNo << "\t\t" << line.getHexAddress() << "\t" << line.line <<"\t" << std::hex << line.objcode[0] << endl;
+        lisfile << line.lineNo << "\t\t" <<line.getHexAddress() << "\t" << line.line <<"\t" << std::hex << line.objcode[0] << endl;
     }
     if(!endStatement)
     {
@@ -71,7 +71,7 @@ void fileParser::writeFile(vector<codeLine> &codeLines, char * LISFILE, bool end
         lisfile << "Unsuccessful Assembly" << endl;
     }
 }
-void fileParser::writeObjectFile(vector<codeLine> &codeLines, char * OBJFILE){
+void fileParser::writeObjectFile(vector<codeLine> &codeLines, char * OBJFILE,string length){
     ofstream objfile;
     objfile.open(OBJFILE);
 
@@ -82,7 +82,7 @@ void fileParser::writeObjectFile(vector<codeLine> &codeLines, char * OBJFILE){
         // write record in OBJFILE
         //cout << "OPCODE FINAL   "<<line.opcodeFinal <<endl;
         if(!line.line.empty() && line.line[0] != '.'){ // comment
-            writeRecords(line, objfile, currTxtRec, startAddress);
+            writeRecords(line, objfile, currTxtRec, startAddress,length);
         }
     }
 
@@ -93,7 +93,7 @@ void fileParser::writeObjectFile(vector<codeLine> &codeLines, char * OBJFILE){
     }
     return str;
 }*/
-void fileParser::writeRecords(codeLine &line, ofstream &objfile, pair<string, string> &currTxtRec, string &startAddress){
+void fileParser::writeRecords(codeLine &line, ofstream &objfile, pair<string, string> &currTxtRec, string &startAddress,string length){
     // write header
     if(line.opcodeFinal == "start" ){
         startAddress = line.getHexAddress();
@@ -104,8 +104,8 @@ void fileParser::writeRecords(codeLine &line, ofstream &objfile, pair<string, st
         while(label.size() < 6){
             label.insert(label.begin(), ' ');
         }
-        cout << endl << "H" << "^" << label << "^" << startAddress << "^" << "length el code kolo in bytes";
-        objfile << endl << "H" << "^" << label << "^" << startAddress << "^" << "length el code kolo in bytes";
+        cout << endl << "H" << "^" << label << "^" << startAddress << "^" <<length;
+        objfile << endl << "H" << "^" << label << "^" << startAddress << "^" <<length;
         return;
     }
 

@@ -16,6 +16,7 @@
 using namespace std;
 class assembler
 {
+    int nBytes=0;
     int pc = 0;
     map<string,regex> operandPatterns;
     map<string, pair<int,unsigned int>> OPTAB; // length of instructions
@@ -27,9 +28,12 @@ class assembler
     vector<codeLine> codeLines;
     bool endStatement;
     string startLabel;
+    int startAddress;
+    int endAddress;
 public:
     assembler(bool mode, char* readFilePath, char* LISFILEPath, char* OBJFILEPath);
     void run();
+    string getCodeSize();
 private:
     bool mode;
     char* readFilePath;

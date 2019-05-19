@@ -33,7 +33,7 @@ void assembler::loadOperandPatterns()
     regex res_b_w("[0-9]{1,4}");
     regex start_org("[0-9a-f]{1,4}");
     regex byte("(c'(.){0,14}')|(x'([a-f0-9]{0,14})')");
-    regex word("[0-9a-f]+");
+    regex word("([0-9a-f]+)(([,]([0-9a-f]+))*)");
     regex equ("[0-9]{1,4}");
     regex base("");
     regex end("([a-z](.*))*");
@@ -191,6 +191,7 @@ void assembler::run()
         if(codeLines[i].start)
         {
             startLabel=codeLines[i].getStartLabel();
+            startAddress=pc;
         }
         if(codeLines[i].end)
         {
@@ -199,6 +200,7 @@ void assembler::run()
                 codeLines[i].errorIds.push_back(15);
                 cout<<endl<<endl<<codeLines[i].getStartLabel()<<" "<<startLabel<<endl<<endl;
             }
+            endAddress=pc;
             endStatement=true;
             break;
         }
@@ -208,6 +210,17 @@ void assembler::run()
     {
         codeLines[i].evaluateDisp(labels,OPTAB,registerNo);
     }
-    fp.writeFile(codeLines, LISFILEPath, OBJFILEPath, endStatement);
-    fp.writeObjectFile(codeLines, OBJFILEPath);
+    fp.writeFile(codeLines, LISFILEPath, endStatement);
+    fp.writeObjectFile(codeLines, OBJFILEPath,getCodeSize());
+}
+string assembler::getCodeSize()
+{
+    stringstream ss;
+    ss<<std::hex<<(endAddress-startAddress-1);
+    string bytes=ss.str();
+    while(bytes.length()<6)
+    {
+        bytes="0"+bytes;
+    }
+    return bytes;
 }

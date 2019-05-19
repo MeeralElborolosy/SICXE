@@ -127,7 +127,7 @@ secondField:
         objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,I_BIT));
         objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,N_BIT));
     }
-    if(indexed(operand))
+    if(indexed(operand)&&OPTAB[opcodeFinal].first!=2)
     {
         objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,X_BIT));
         operand = operand.substr(0, operand.size()-2);
@@ -163,10 +163,15 @@ secondField:
     else if(opcode == "byte")
     {
         newPc = pc + operand.length()-3;
+        objcode=calcByte(operandFinal);
     }
     else if(opcode == "word")
     {
         newPc = pc + 3 ;
+        stringstream ss(operandFinal);
+        int x;
+        ss>>x;
+        objcode[0]=(x&0xFFFFFF);
     }
     else if(opcode == "equ ")
     {
@@ -398,7 +403,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
             objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,I_BIT));
             objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,N_BIT));
         }
-        if(indexed(operand))
+        if(indexed(operand)&&OPTAB[opcodeFinal].first!=2)
         {
             objcode[0]=setBit(objcode[0],shift(OPTAB[opcodeFinal].first,X_BIT));
             operand = operand.substr(0, operand.size()-2);
@@ -408,6 +413,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
     // opcode is directive
     // update addresses
     //cout <<op_code << ' ' << operand<<endl;
+    opcodeFinal=op_code;
     if(op_code == "start")
     { //cout <<operand<<endl;
         if(find(errorIds.begin(),errorIds.end(),9)!=errorIds.end())
@@ -455,11 +461,13 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
     }
     else if(op_code == "word")
     {
-        newPc = pc + 3 ;
-        stringstream ss(operandFinal);
-        int x;
-        ss>>x;
-        objcode[0]=(x&0xFFFFFF);
+        //newPc = pc + 3 ;
+        //stringstream ss(operandFinal);
+        //int x;
+        //ss>>x;
+        //objcode[0]=(x&0xFFFFFF);
+        objcode=calcWord(operandFinal);
+        newPc = pc + 3*objcode.size();
     }
     else if(op_code == "equ ")
     {
@@ -604,7 +612,7 @@ string codeLine::getStartLabel()
 string codeLine::getHexObjCode()
 {
     stringstream ss;
-    ss << hex << objcode;
+    ss << hex << objcode[0];
     string objcode_str = ss.str();
     if(objcode_str.size()/2 < format && (objcode_str.size()%2 == 1)){
         objcode_str.insert(objcode_str.begin(), '0');
@@ -690,6 +698,20 @@ vector<unsigned int> codeLine::calcByte(string operand)
     if(res!="")
     {
         objcodes.push_back(hex2dec(res));
+    }
+    return objcodes;
+}
+vector<unsigned int> codeLine::calcWord(string operand)
+{
+    vector<unsigned int> objcodes;
+    stringstream ss(operand);
+    string temp;
+    int x;
+    while(getline(ss,temp,','))
+    {
+        stringstream converter(temp);
+        converter>>x;
+        objcodes.push_back(x&0xFFFFFF);
     }
     return objcodes;
 }
