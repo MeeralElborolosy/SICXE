@@ -610,17 +610,14 @@ string codeLine::getStartLabel()
 string codeLine::getHexObjCode()
 {
     string objcode_str = "";
-    for(auto &oc : objcode){
+    for(auto &ocss : objcode){
         stringstream ss;
-        ss << hex << oc;
-        objcode_str += ss.str();
-    }
-    if(objcode_str.size()/2 < format && (objcode_str.size()%2 == 1)){
-        objcode_str.insert(objcode_str.begin(), '0');
-    }
-    while(objcode_str.size()/2 < format){
-        objcode_str.insert(objcode_str.begin(), '0');
-        objcode_str.insert(objcode_str.begin(), '0');
+        ss << hex << ocss;
+        string oc = ss.str();
+        while(oc.size() < format*2){
+            oc.insert(oc.begin(), '0');
+        }
+        objcode_str += oc;
     }
     return objcode_str;
 }
