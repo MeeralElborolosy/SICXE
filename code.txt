@@ -1,7 +1,21 @@
 .2345678901234567890123456789
 Prbn01   START   1000
          addr    s,x
-         org     1010
+         add     #3
+         add     @alpha
+         addr    s,x
+         add     #3
+         add     @alpha
+         addr    s,x
+         add     #3
+         add     @alpha
+         addr    s,x
+         add     #3
+         add     @alpha
+         addr    s,x
+         add     #3
+         add     @alpha
+         addr    s,x
          add     #3
          add     @alpha
 alpha    resw    100

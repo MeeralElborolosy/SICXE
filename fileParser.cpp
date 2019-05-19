@@ -111,8 +111,9 @@ void fileParser::writeRecords(codeLine &line, ofstream &objfile, pair<string, st
     }
 
     // write current record
-    if(((currTxtRec.second != "" && currTxtRec.first != "")&&(line.opcodeFinal == "org" || line.opcodeFinal == "resw" || line.opcodeFinal == "resb" || line.opcodeFinal == "end")) || (currTxtRec.second.size() + line.format >=30)){ // > 1E hex
+    if(((currTxtRec.second != "" && currTxtRec.first != "")&&(line.opcodeFinal == "org" || line.opcodeFinal == "resw" || line.opcodeFinal == "resb" || line.opcodeFinal == "end")) || (currTxtRec.second.size()/2 + line.getHexObjCode().size()/2 >30)){ // > 1E hex
         int length = currTxtRec.second.size()/2; string zero = "";
+        //cout <<"\nlen   "<< dec << length<< endl;
         if(length < 16){
             zero = "0";
         }
