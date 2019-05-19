@@ -500,6 +500,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
             errorIds.push_back(5);
         }
     }
+    opcodeFinal = op_code;
 done:
     return;
 }
@@ -611,7 +612,7 @@ string codeLine::getHexObjCode()
     string objcode_str = "";
     for(auto &oc : objcode){
         stringstream ss;
-        ss << hex << objcode;
+        ss << hex << oc;
         objcode_str += ss.str();
     }
     if(objcode_str.size()/2 < format && (objcode_str.size()%2 == 1)){
