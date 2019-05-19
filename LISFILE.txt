@@ -1,25 +1,38 @@
+
+				Symbol Table
+				name	address
+				alpha	1037
+				alxx	1163
+				beta	1167
+				gamma	116a
+				prbn01	0
 Line no.	Address	Label	Mnemonic Operands Comments
 1		0	.2345678901234567890123456789	
 2		1000	prbn01   start   1000	
 3		1000	         addr    s,x	
-4		1002	         add     #3	
-5		1005	         add     @alpha	
-6		1008	         addr    s,x	
-7		100a	         add     #3	
-8		100d	         add     @alpha	
-9		1010	         addr    s,x	
-10		1012	         add     #3	
-11		1015	         add     @alpha	
-12		1018	         addr    s,x	
-13		101a	         add     #3	
-14		101d	         add     @alpha	
-15		1020	         addr    s,x	
-16		1022	         add     #3	
-17		1025	         add     @alpha	
-18		1028	         addr    s,x	
-19		102a	         add     #3	
-20		102d	         add     @alpha	
-21		1030	alpha    resw    100	
-22		115c	alxx     byte    c'hhh'	
-23		115f	         end     prbn01	
+4		1002	         addr    x,s	
+5		1004	         addr    s,t	
+6		1006	         add     #3	
+7		1009	         add     @alpha	
+8		100c	         addr    s,x	
+9		100e	         add     #3	
+a		1011	         add     @alpha	
+b		1014	         addr    s,x	
+c		1016	         add     #3	
+d		1019	         add     @alpha	
+e		101c	         addr    s,x	
+f		101e	         add     #3	
+10		1021	         add     @alpha	
+11		1024	         addr    s,x	
+12		1026	         add     #3	
+13		1029	         add     @alpha	
+14		102c	         addr    s,x	
+15		102e	         add     #3	
+16		1031	         add     @alpha	
+17		1034	         j       *	
+18		1037	alpha    resw    100	
+19		1163	alxx     byte    c'hhhh'	
+1a		1167	beta     word    15	
+1b		116a	gamma    word    16,17,18	
+1c		1173	         end     prbn01	
 Successful Assembly

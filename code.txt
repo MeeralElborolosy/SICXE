@@ -20,8 +20,9 @@ Prbn01   START   1000
          addr    s,x
          add     #3
          add     @alpha
+         j       *
 alpha    resw    100
-alxx     byte    c'hhh'
+alxx     byte    c'hhhh'
 beta     word    15
 gamma    word    16,17,18
          end     Prbn01

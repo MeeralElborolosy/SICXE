@@ -106,7 +106,7 @@ secondField:
         errorIds.push_back(9);
         goto done;
     }
-    cout<<"HELLO\n"<<operand[0]<<endl;;
+    //cout<<"HELLO\n"<<operand[0]<<endl;;
     if(!operand.empty() && (operand[0]=='@' || operand[0]=='#'))
     {
         if(immediate(operand))
@@ -169,12 +169,9 @@ secondField:
     }
     else if(opcode == "word")
     {
-        format = 3;
-        newPc = pc + 3 ;
-        stringstream ss(operandFinal);
-        int x;
-        ss>>x;
-        objcode[0]=(x&0xFFFFFF);
+        format=3;
+        objcode=calcWord(operandFinal);
+        newPc = pc + 3*objcode.size();
     }
     else if(opcode == "equ ")
     {
@@ -372,7 +369,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
         {
             newPc = pc + OPTAB[op_code].first;
             objcode[0]=OPTAB[op_code].second;
-            cout<<op_code<<" "<<std::hex<<objcode[0]<<std::hex<<endl;
+            //cout<<op_code<<" "<<std::hex<<objcode[0]<<std::hex<<endl;
             opcodeFinal=op_code;
         }
     }
@@ -383,7 +380,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
         errorIds.push_back(9);
     }//0001 1010
     else
-    {     cout<<"HELLO\n"<<operand[0]<<endl;;
+    {     //cout<<"HELLO\n"<<operand[0]<<endl;;
 
         if(!operand.empty() && (operand[0]=='@' || operand[0]=='#'))
         {
@@ -465,11 +462,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
     }
     else if(op_code == "word")
     {
-        //newPc = pc + 3 ;
-        //stringstream ss(operandFinal);
-        //int x;
-        //ss>>x;
-        //objcode[0]=(x&0xFFFFFF);
+        format=3;
         objcode=calcWord(operandFinal);
         newPc = pc + 3*objcode.size();
     }
@@ -513,17 +506,17 @@ done:
 }
 void codeLine::evaluateDisp(map<string,unsigned int> &labels,map<string, pair<int,unsigned int>> &OPTAB,map<char,unsigned int> regNo)
 {
-    cout << "operand final " << operandFinal<<endl;
+    //cout << "operand final " << operandFinal<<endl;
     if(opcodeFinal==""||operandFinal=="")
     {
         return;
     }
     if(OPTAB[opcodeFinal].first==2)
     {
-        cout<<"opcode before"<<std::hex<<objcode[0]<<endl;
+        //cout<<"opcode before"<<std::hex<<objcode[0]<<endl;
         unsigned int disp=(regNo[operandFinal[0]]<<4)|regNo[operandFinal[2]];
         objcode[0]|=disp;
-        cout<<disp<<endl;
+        //cout<<disp<<endl;
         return;
     }
     unsigned int disp;
@@ -547,8 +540,8 @@ void codeLine::evaluateDisp(map<string,unsigned int> &labels,map<string, pair<in
         if(operandFinal[sign_pos] == '-') num*=-1;
 
         disp = (before == "*" ? this->address : labels[before]) + num;
-        cout<<"HEEERE " << this->address << ' ' << num << ' ' << disp<<endl;
-        cout<<operandFinal<<" disp  " << std::hex<<disp<<endl;
+        //cout<<"HEEERE " << this->address << ' ' << num << ' ' << disp<<endl;
+        //cout<<operandFinal<<" disp  " << std::hex<<disp<<endl;
     }
     else
     {
@@ -572,7 +565,7 @@ void codeLine::evaluateDisp(map<string,unsigned int> &labels,map<string, pair<in
     }
     else
     {
-        cout<<opcodeFinal<<" invalid"<<endl;
+        //cout<<opcodeFinal<<" invalid"<<endl;
     }
 done: return;
 }

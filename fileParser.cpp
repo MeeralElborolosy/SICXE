@@ -33,10 +33,18 @@ vector<codeLine> fileParser::readFile(char * path)
     inFile.close();
     return codeLines;
 }
-bool fileParser::writeListFile(vector<codeLine> &codeLines, char * LISFILE, bool endStatement)
+bool fileParser::writeListFile(vector<codeLine> &codeLines,map<string,unsigned int> labels, char * LISFILE, bool endStatement)
 {
     ofstream lisfile;
     lisfile.open(LISFILE);
+
+    cout<<"\n\t\t\t\tSymbol Table\n\t\t\t\tname\taddress\n";
+    lisfile<<"\n\t\t\t\tSymbol Table\n\t\t\t\tname\taddress\n";
+    for(auto itr=labels.begin();itr!=labels.end();itr++)
+    {
+        cout<<"\t\t\t\t"<<itr->first<<"\t"<<std::hex<<itr->second<<endl;
+        lisfile<<"\t\t\t\t"<<itr->first<<"\t"<<std::hex<<itr->second<<endl;
+    }
 
     bool error = false;
     if(mode==1)
@@ -86,7 +94,6 @@ void fileParser::writeObjectFile(vector<codeLine> &codeLines, char * OBJFILE,str
             writeRecords(line, objfile, currTxtRec, startAddress,length);
         }
     }
-
 }
 /*string zeroPadding(int requiredSize, string str){
     while(str.size() < requiredSize){
