@@ -524,7 +524,7 @@ void codeLine::evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigne
     }
     unsigned int disp;
 
-    regex labelPattern("([a-z]([a-z0-9_]*))((([+]|[-])[0-9]+)?)");
+    regex labelPattern("([*]|([a-z]([a-z0-9_]*)))((([+]|[-])[0-9]+)?)");
     if(regex_match(operandFinal,labelPattern))
     {
 
@@ -534,7 +534,7 @@ void codeLine::evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigne
         string before = operandFinal.substr(0, sign_pos);
         string after = sign_pos == string::npos ? "0" : operandFinal.substr(sign_pos + 1);
 
-        if(labels.find(before) == labels.end())
+        if(labels.find(before) == labels.end() && before != "*")
         {
             this->errorIds.push_back(9);
             goto done;
@@ -543,8 +543,8 @@ void codeLine::evaluateDisp(map<string,int> &labels,map<string, pair<int,unsigne
         int num; stringstream ss(after); ss>>num;
         if(operandFinal[sign_pos] == '-') num*=-1;
 
-        disp = labels[before] + num;
-        cout<<"HEEERE " << labels[before] << ' ' << num << ' ' << disp<<endl;
+        disp = (before == "*" ? this->address : labels[before]) + num;
+        cout<<"HEEERE " << this->address << ' ' << num << ' ' << disp<<endl;
         cout<<"disp  " << std::hex<<disp<<endl;
     }
     else

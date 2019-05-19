@@ -1,6 +1,6 @@
 .2345678901234567890123456789
 Prbn01   START   1000
-         add     alpha+3
+         add     *+3
          add     @alpha
          add     alpha-3,x
 alpha    resw    100
