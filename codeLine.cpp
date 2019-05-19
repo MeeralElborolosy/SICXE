@@ -104,6 +104,7 @@ secondField:
         errorIds.push_back(9);
         goto done;
     }
+    cout<<"HELLO\n"<<operand[0]<<endl;;
     if(!operand.empty() && (operand[0]=='@' || operand[0]=='#'))
     {
 
@@ -136,14 +137,7 @@ secondField:
         {
             objcode=setBit(objcode,X_BIT+4);
         }
-        operand=operand.substr(0,operand.length()-2);
-    }
-    if(regex_match(operand, labelPattern)&&OPTAB[opcode].first!=2)
-    {
-        if(labels.find(operand) == labels.end())
-        {
-            unknownLabels[operand].push_back(lineNo);
-        }
+        operand = operand.substr(0, operand.size()-2);
     }
     operandFinal=operand;
 // opcode is directive
@@ -382,9 +376,10 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
     if(!regex_match(operand, operandPatterns[op_code]))
     {
         errorIds.push_back(9);
-    }
+    }//0001 1010
     else
-    {
+    {     cout<<"HELLO\n"<<operand[0]<<endl;;
+
         if(!operand.empty() && (operand[0]=='@' || operand[0]=='#'))
         {
             if(immediate(operand))
@@ -416,14 +411,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
             {
                 objcode=setBit(objcode,X_BIT+4);
             }
-            operand=operand.substr(0,operand.length()-2);
-        }
-        if(regex_match(operand, labelPattern)&&OPTAB[op_code].first!=2)
-        {
-            if(labels.find(operand) == labels.end())
-            {
-                unknownLabels[operand].push_back(lineNo);
-            }
+            operand = operand.substr(0, operand.size()-2);
         }
         operandFinal=operand;
     }
@@ -517,7 +505,7 @@ done:
 }
 void codeLine::evaluateDisp(map<string,unsigned int> &labels,map<string, pair<int,unsigned int>> &OPTAB,map<char,unsigned int> regNo)
 {
-    regex labelPattern("(@|#)?([a-z]([a-z0-9_]*))");
+    cout << "operand final " << operandFinal<<endl;
     if(opcodeFinal==""||operandFinal=="")
     {
         return;
@@ -529,9 +517,28 @@ void codeLine::evaluateDisp(map<string,unsigned int> &labels,map<string, pair<in
         return;
     }
     unsigned int disp;
+
+    regex labelPattern("([*]|([a-z]([a-z0-9_]*)))((([+]|[-])[0-9]+)?)");
     if(regex_match(operandFinal,labelPattern))
     {
-        disp=labels[operandFinal];
+        int sign_pos = operandFinal.find("-");
+        sign_pos = sign_pos == string::npos ? operandFinal.find("+") : sign_pos;
+
+        string before = operandFinal.substr(0, sign_pos);
+        string after = sign_pos == string::npos ? "0" : operandFinal.substr(sign_pos + 1);
+
+        if(labels.find(before) == labels.end() && before != "*")
+        {
+            this->errorIds.push_back(9);
+            goto done;
+        }
+
+        int num; stringstream ss(after); ss>>num;
+        if(operandFinal[sign_pos] == '-') num*=-1;
+
+        disp = (before == "*" ? this->address : labels[before]) + num;
+        cout<<"HEEERE " << this->address << ' ' << num << ' ' << disp<<endl;
+        cout<<"disp  " << std::hex<<disp<<endl;
     }
     else
     {
@@ -546,7 +553,9 @@ void codeLine::evaluateDisp(map<string,unsigned int> &labels,map<string, pair<in
         }
         else
         {
+            cout<<"before  " << std::hex<<objcode<<endl;
             objcode|=(disp&4095);
+            cout<<"after  " << std::hex<<objcode<<endl;
         }
     }
     else if(OPTAB[opcodeFinal].first==4)
@@ -557,6 +566,7 @@ void codeLine::evaluateDisp(map<string,unsigned int> &labels,map<string, pair<in
     {
         cout<<opcodeFinal<<" invalid"<<endl;
     }
+done: return;
 }
 int codeLine::getNewPc()
 {

@@ -25,8 +25,10 @@ void assembler::loadOperandPatterns()
 {
     regex rr("(a|b|l|x|s|t),(a|b|l|x|s|t)");
     regex r("(a|b|l|x|s|t)");
-    regex m("[*]|((@|#)?(([a-z]([a-z0-9_]*))|([0-9]+)))|(([a-z]([a-z0-9_]*))((,x)?))"); //label:(@|#)?([a-z](.*)) //hexa:([0-9a-f]+h)
-    regex j("((@|#)?(([a-z](.*))|([0-9]+)|0([0-9a-f]+h))(,x)?)"); // j  *
+    //regex m("[*]|((@|#)?(([a-z]([a-z0-9_]*))|([0-9]+)))|(([a-z]([a-z0-9_]*))((,x)?))"); //label:(@|#)?([a-z](.*)) //hexa:([0-9a-f]+h)
+    //regex m("[*]|((@|#)?(([a-z]([a-z0-9_]*))|([0-9]+))(((+|-)[0-9]+)?))|(([a-z]([a-z0-9_]*))(((+|-)[0-9]+)?)((,x)?))");
+    regex m("([*]((([+]|[-])[0-9]+)?))|((@|#)?(([a-z]([a-z0-9_]*))|([0-9]+))((([+]|[-])[0-9]+)?))|(([a-z]([a-z0-9_]*))((([+]|[-])[0-9]+)?)((,x)?))");
+    //regex j("((@|#)?(([a-z](.*))|([0-9]+)|0([0-9a-f]+h))(,x)?)"); // j  *
     regex res_b_w("[0-9]{1,4}");
     regex start_org("[0-9a-f]{1,4}");
     regex byte("(c'(.){0,14}')|(x'([a-f0-9]{0,14})')");
@@ -200,13 +202,7 @@ void assembler::run()
             break;
         }
     }
-    // check unknownLabels
-    for (auto &it: unknownLabels)
-    {
-        for(int lineNo : it.second){
-            codeLines[lineNo-1].errorIds.push_back(9);
-        }
-    }
+
     for(int i=0;i<codeLines.size();i++)
     {
         codeLines[i].evaluateDisp(labels,OPTAB,registerNo);

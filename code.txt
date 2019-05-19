@@ -1,5 +1,9 @@
 .2345678901234567890123456789
 first    START   1000
+         add     *+3
+         add     @alpha
+         add     alpha-3,x
+alpha    resw    100
          stl     retaddr
          ldt     #11
          ldx     #0
@@ -12,3 +16,4 @@ str1     byte    c'testxstring'
 str2     resb    11
 retaddr  resw    1
          end     first
+
