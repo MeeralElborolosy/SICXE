@@ -208,6 +208,8 @@ void assembler::run()
     {
         codeLines[i].evaluateDisp(labels,OPTAB,registerNo);
     }
-    fp.writeFile(codeLines, LISFILEPath, OBJFILEPath, endStatement);
-    fp.writeObjectFile(codeLines, OBJFILEPath);
+    fp.writeListFile(codeLines, LISFILEPath, endStatement);
+    if(!error){
+        fp.writeObjectFile(codeLines, OBJFILEPath);
+    }
 }

@@ -6,6 +6,7 @@ codeLine::codeLine(string &line, int lineNo)
     transform(this->line.begin(), this->line.end(), this->line.begin(), ::tolower);
     this->lineNo = lineNo;
     this->objcode.push_back(0);
+    this->format = 0;
 }
 void codeLine::setMode(bool mode)
 {
@@ -162,10 +163,12 @@ secondField:
     }
     else if(opcode == "byte")
     {
+        format = 1;
         newPc = pc + operand.length()-3;
     }
     else if(opcode == "word")
     {
+        format = 3;
         newPc = pc + 3 ;
     }
     else if(opcode == "equ ")
@@ -446,6 +449,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
     }
     else if(op_code == "byte")
     {
+        format = 1;
         if(find(errorIds.begin(),errorIds.end(),9)!=errorIds.end())
         {
             goto done;
@@ -455,6 +459,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
     }
     else if(op_code == "word")
     {
+        format = 3;
         newPc = pc + 3 ;
         stringstream ss(operandFinal);
         int x;
@@ -603,9 +608,12 @@ string codeLine::getStartLabel()
 }
 string codeLine::getHexObjCode()
 {
-    stringstream ss;
-    ss << hex << objcode;
-    string objcode_str = ss.str();
+    string objcode_str = "";
+    for(auto &oc : objcode){
+        stringstream ss;
+        ss << hex << objcode;
+        objcode_str += ss.str();
+    }
     if(objcode_str.size()/2 < format && (objcode_str.size()%2 == 1)){
         objcode_str.insert(objcode_str.begin(), '0');
     }

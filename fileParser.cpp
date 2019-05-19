@@ -33,7 +33,7 @@ vector<codeLine> fileParser::readFile(char * path)
     inFile.close();
     return codeLines;
 }
-void fileParser::writeFile(vector<codeLine> &codeLines, char * LISFILE, bool endStatement)
+void fileParser::writeListFile(vector<codeLine> &codeLines, char * LISFILE, bool endStatement)
 {
     ofstream lisfile;
     lisfile.open(LISFILE);
