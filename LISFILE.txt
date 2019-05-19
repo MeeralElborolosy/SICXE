@@ -1,14 +1,25 @@
 Line no.	Address	Label	Mnemonic Operands Comments
-1		0	.2345678901234567890123456789	0
-2		1000	prbn01   start   1000	30000
-3		1000	         addr    s,x	9041
-4		1002	         addr    x,s	9014
-5		1004	         addr    s,t	9045
-6		1006	         add     #3	190003
-7		1009	         add     @alpha	1a2000
-8		100c	alpha    resw    100	30000
-9		1138	alxx     byte    c'hhh'	686868
-a		113b	beta     word    15	f
-b		113e	gamma    word    16,17,18	10
-c		1147	         end     prbn01	30000
+1		0	.2345678901234567890123456789	
+2		1000	prbn01   start   1000	
+3		1000	         addr    s,x	
+4		1002	         add     #3	
+5		1005	         add     @alpha	
+6		1008	         addr    s,x	
+7		100a	         add     #3	
+8		100d	         add     @alpha	
+9		1010	         addr    s,x	
+10		1012	         add     #3	
+11		1015	         add     @alpha	
+12		1018	         addr    s,x	
+13		101a	         add     #3	
+14		101d	         add     @alpha	
+15		1020	         addr    s,x	
+16		1022	         add     #3	
+17		1025	         add     @alpha	
+18		1028	         addr    s,x	
+19		102a	         add     #3	
+20		102d	         add     @alpha	
+21		1030	alpha    resw    100	
+22		115c	alxx     byte    c'hhh'	
+23		115f	         end     prbn01	
 Successful Assembly

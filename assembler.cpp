@@ -210,8 +210,10 @@ void assembler::run()
     {
         codeLines[i].evaluateDisp(labels,OPTAB,registerNo);
     }
-    fp.writeFile(codeLines, LISFILEPath, endStatement);
-    fp.writeObjectFile(codeLines, OBJFILEPath,getCodeSize());
+    bool error = fp.writeListFile(codeLines, LISFILEPath, endStatement);
+    if(!error) {
+        fp.writeObjectFile(codeLines, OBJFILEPath);
+    }
 }
 string assembler::getCodeSize()
 {
@@ -222,5 +224,5 @@ string assembler::getCodeSize()
     {
         bytes="0"+bytes;
     }
-    return bytes;
+    return bytes;  
 }

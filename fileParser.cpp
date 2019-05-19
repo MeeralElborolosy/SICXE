@@ -33,7 +33,7 @@ vector<codeLine> fileParser::readFile(char * path)
     inFile.close();
     return codeLines;
 }
-void fileParser::writeFile(vector<codeLine> &codeLines, char * LISFILE, bool endStatement)
+bool fileParser::writeListFile(vector<codeLine> &codeLines, char * LISFILE, bool endStatement)
 {
     ofstream lisfile;
     lisfile.open(LISFILE);
@@ -52,8 +52,8 @@ void fileParser::writeFile(vector<codeLine> &codeLines, char * LISFILE, bool end
             lisfile << errorMsg[id-1] << endl;
             error = true;
         }
-        cout << line.lineNo << "\t\t" << line.getHexAddress() << "\t" << line.line <<"\t" << std::hex << line.objcode[0] << endl;
-        lisfile << line.lineNo << "\t\t" <<line.getHexAddress() << "\t" << line.line <<"\t" << std::hex << line.objcode[0] << endl;
+        cout << line.lineNo << "\t\t" << line.getHexAddress() << "\t" << line.line <<"\t" << endl;
+        lisfile << line.lineNo << "\t\t" <<line.getHexAddress() << "\t" << line.line <<"\t" <<  endl;
     }
     if(!endStatement)
     {
@@ -70,6 +70,7 @@ void fileParser::writeFile(vector<codeLine> &codeLines, char * LISFILE, bool end
         cout << "Unsuccessful Assembly" << endl;
         lisfile << "Unsuccessful Assembly" << endl;
     }
+    return error;
 }
 void fileParser::writeObjectFile(vector<codeLine> &codeLines, char * OBJFILE,string length){
     ofstream objfile;
@@ -110,8 +111,9 @@ void fileParser::writeRecords(codeLine &line, ofstream &objfile, pair<string, st
     }
 
     // write current record
-    if(((currTxtRec.second != "" && currTxtRec.first != "")&&(line.opcodeFinal == "resw" || line.opcodeFinal == "resb" || line.opcodeFinal == "end")) || (currTxtRec.second.size() + line.format >=30)){ // > 1E hex
+    if(((currTxtRec.second != "" && currTxtRec.first != "")&&(line.opcodeFinal == "org" || line.opcodeFinal == "resw" || line.opcodeFinal == "resb" || line.opcodeFinal == "end")) || (currTxtRec.second.size()/2 + line.getHexObjCode().size()/2 >30)){ // > 1E hex
         int length = currTxtRec.second.size()/2; string zero = "";
+        //cout <<"\nlen   "<< dec << length<< endl;
         if(length < 16){
             zero = "0";
         }
@@ -125,7 +127,7 @@ void fileParser::writeRecords(codeLine &line, ofstream &objfile, pair<string, st
         objfile << endl << "E" << "^" << startAddress;
         return;
     }
-    if(currTxtRec.second == "" && currTxtRec.first == ""  && (line.opcodeFinal != "end" && line.opcodeFinal != "resw" && line.opcodeFinal != "resb")){
+    if(currTxtRec.second == "" && currTxtRec.first == ""  && (line.opcodeFinal != "end" && line.opcodeFinal != "org" && line.opcodeFinal != "resw" && line.opcodeFinal != "resb")){
         string add = line.getHexAddress();
         while(add.size() < 6){
             add.insert(add.begin(), '0');

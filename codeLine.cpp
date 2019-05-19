@@ -6,6 +6,7 @@ codeLine::codeLine(string &line, int lineNo)
     transform(this->line.begin(), this->line.end(), this->line.begin(), ::tolower);
     this->lineNo = lineNo;
     this->objcode.push_back(0);
+    this->format = 0;
 }
 void codeLine::setMode(bool mode)
 {
@@ -162,11 +163,13 @@ secondField:
     }
     else if(opcode == "byte")
     {
+        format = 1;
         newPc = pc + operand.length()-3;
         objcode=calcByte(operandFinal);
     }
     else if(opcode == "word")
     {
+        format = 3;
         newPc = pc + 3 ;
         stringstream ss(operandFinal);
         int x;
@@ -452,6 +455,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
     }
     else if(op_code == "byte")
     {
+        format = 1;
         if(find(errorIds.begin(),errorIds.end(),9)!=errorIds.end())
         {
             goto done;
@@ -503,6 +507,7 @@ void codeLine::validateFixedFormat(map<string,regex> &operandPatterns, map<strin
             errorIds.push_back(5);
         }
     }
+    opcodeFinal = op_code;
 done:
     return;
 }
@@ -611,15 +616,15 @@ string codeLine::getStartLabel()
 }
 string codeLine::getHexObjCode()
 {
-    stringstream ss;
-    ss << hex << objcode[0];
-    string objcode_str = ss.str();
-    if(objcode_str.size()/2 < format && (objcode_str.size()%2 == 1)){
-        objcode_str.insert(objcode_str.begin(), '0');
-    }
-    while(objcode_str.size()/2 < format){
-        objcode_str.insert(objcode_str.begin(), '0');
-        objcode_str.insert(objcode_str.begin(), '0');
+    string objcode_str = "";
+    for(auto &ocss : objcode){
+        stringstream ss;
+        ss << hex << ocss;
+        string oc = ss.str();
+        while(oc.size() < format*2){
+            oc.insert(oc.begin(), '0');
+        }
+        objcode_str += oc;
     }
     return objcode_str;
 }

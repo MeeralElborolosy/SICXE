@@ -5,6 +5,21 @@ Prbn01   START   1000
          addr    s,t
          add     #3
          add     @alpha
+         addr    s,x
+         add     #3
+         add     @alpha
+         addr    s,x
+         add     #3
+         add     @alpha
+         addr    s,x
+         add     #3
+         add     @alpha
+         addr    s,x
+         add     #3
+         add     @alpha
+         addr    s,x
+         add     #3
+         add     @alpha
 alpha    resw    100
 alxx     byte    c'hhh'
 beta     word    15
